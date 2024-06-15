@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 
 @dataclass
 class Movie:
+    record_id: int
     movie_id: int
     title: str
     country: str
@@ -16,6 +17,7 @@ class Movie:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Movie':
         return cls(
+            record_id=int(data['record_id']),
             movie_id=int(data['movie_id']),
             title=data['title'],
             country=data['country'],

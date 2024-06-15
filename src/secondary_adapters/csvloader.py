@@ -21,6 +21,7 @@ def load_dataset(path: str, conf: Config) -> List[Movie]:
     error_count = 0
     logger = conf.logger
     result: List[Movie] = []
+    id = 1
     with open(path, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for (row, error) in iterate_results(reader):
@@ -29,8 +30,10 @@ def load_dataset(path: str, conf: Config) -> List[Movie]:
                 logger.warning(error)
                 continue
             try:
+                row["record_id"] = id
                 movie = Movie.from_dict(row)
                 result.append(movie)
+                id+=1
             except (ValueError, KeyError, TypeError) as e:
                 error_count += 1
                 logger.warning(e)

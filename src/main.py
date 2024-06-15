@@ -1,3 +1,4 @@
+from tabulate import tabulate
 import logging
 import sys
 
@@ -22,9 +23,28 @@ def main(config: Config) -> None:
     dataset = load_dataset(config.dataset_path, config)
     db = create_movie_vectordb(dataset, config)
     query = load_query(config.query_path, config)
+    min_release_year =-10000
+    max_release_year = 10000
+    query.max_release_year = max_release_year
+    query.min_release_year = min_release_year
     results = search_movies(db, query)
-    for result in results:
-        print(result.title)
+
+    table = True
+    if table:
+        table_results = [
+            {
+                "record_id": result.record_id,
+                "movie_id": result.movie_id,
+                "country": result.country,
+                "release_year": result.release_year,
+                "title": result.title,
+                "description": result.description[0:100]
+            } for result in results
+        ]
+        print(tabulate(table_results))
+    else:
+        for result in results:
+            print(result.record_id, result.movie_id, result.title, result.description)
 
 if __name__ == "__main__":
     logger = setup_logging()

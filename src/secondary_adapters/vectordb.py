@@ -6,6 +6,7 @@ from typing import List
 from logic.movie import Movie, MovieQuery
 
 class MovieDoc(BaseDoc):
+    record_id: int
     movie_id: int
     title: str
     country: str
@@ -23,6 +24,7 @@ def create_movie_vectordb(movies: List[Movie], config: Config) -> InMemoryExactN
     for movie in movies:
         try: 
             movie_doc = MovieDoc(
+                record_id=movie.record_id,
                 movie_id=movie.movie_id,
                 title=movie.title,
                 country=movie.country,
@@ -43,10 +45,10 @@ def create_movie_vectordb(movies: List[Movie], config: Config) -> InMemoryExactN
     logger.debug(f"Indexed Successfully")
     return db
 
-# Perform a search query
 def search_movies(db: InMemoryExactNNVectorDB[MovieDoc], query:MovieQuery, limit: int = 10) -> List[MovieDoc]:
     query_embedding = query.vector_embedding
-    query = MovieDoc(
+    querydoc = MovieDoc(
+        record_id=-1,
         movie_id=-1,
         title="",
         country="",
@@ -54,5 +56,18 @@ def search_movies(db: InMemoryExactNNVectorDB[MovieDoc], query:MovieQuery, limit
         description="",
         embedding=query_embedding
     )
-    results = db.search(inputs=DocList[MovieDoc]([query]), limit=limit)
-    return results[0].matches
+
+    max_release_year = query.max_release_year
+    min_release_year = query.min_release_year
+
+    results = db.search(inputs=DocList[MovieDoc]([querydoc]))    
+
+    filtered_results = []
+
+    for match in results[0].matches:
+        if min_release_year <= match.release_year <= max_release_year:
+            filtered_results.append(match)
+        if len(filtered_results) >= limit:
+            return filtered_results
+
+    return filtered_results
