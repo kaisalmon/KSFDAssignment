@@ -1,0 +1,6 @@
+venv
+workspace_path
+**/__pycache__
+.vscode
+datasets
+queries
