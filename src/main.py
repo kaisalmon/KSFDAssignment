@@ -4,7 +4,7 @@ import sys
 
 from main_types import Config
 from secondary_adapters.csvloader import load_dataset, load_query
-from secondary_adapters.vectordb import create_movie_vectordb, search_movies
+from secondary_adapters.vectordb import search_movies
 
 
 def setup_logging() -> logging.Logger:
@@ -20,31 +20,31 @@ def setup_logging() -> logging.Logger:
 
 def main(config: Config) -> None:
     config.logger.info("Starting FocalData assessment CLI application")
-    dataset = load_dataset(config.dataset_path, config)
-    db = create_movie_vectordb(dataset, config)
+    movies = load_dataset(config.dataset_path, config)
     query = load_query(config.query_path, config)
     min_release_year =-10000
     max_release_year = 10000
     query.max_release_year = max_release_year
     query.min_release_year = min_release_year
-    results = search_movies(db, query)
+    results = search_movies(movies, query)
 
-    table = True
+    table = False
     if table:
         table_results = [
             {
+                "distance": distance,
                 "record_id": result.record_id,
                 "movie_id": result.movie_id,
                 "country": result.country,
                 "release_year": result.release_year,
                 "title": result.title,
                 "description": result.description[0:100]
-            } for result in results
+            } for (result, distance) in results
         ]
         print(tabulate(table_results))
     else:
-        for result in results:
-            print(result.record_id, result.movie_id, result.title, result.description)
+        for (result, _) in results:
+            print(result)
 
 if __name__ == "__main__":
     logger = setup_logging()

@@ -1,73 +1,28 @@
-from docarray import DocList, BaseDoc
+from sklearn.metrics.pairwise import cosine_distances
+from dataclasses import dataclass
 from main_types import Config
-from vectordb import InMemoryExactNNVectorDB
+import numpy as np
 from docarray.typing import NdArray
-from typing import List
+from typing import List, Tuple
 from logic.movie import Movie, MovieQuery
 
-class MovieDoc(BaseDoc):
-    record_id: int
-    movie_id: int
-    title: str
-    country: str
-    release_year: int
-    description: str
-    embedding: NdArray[1536]
-
-def create_movie_vectordb(movies: List[Movie], config: Config) -> InMemoryExactNNVectorDB[MovieDoc]:
-    logger = config.logger
-    logger.info("Creating db")
-    db = InMemoryExactNNVectorDB[MovieDoc](workspace=config.workspace_path)
-
-    doc_list = []
-    error_count = 0
-    for movie in movies:
-        try: 
-            movie_doc = MovieDoc(
-                record_id=movie.record_id,
-                movie_id=movie.movie_id,
-                title=movie.title,
-                country=movie.country,
-                release_year=movie.release_year,
-                description=movie.description,
-                embedding=movie.vector_embedding
-            )
-            doc_list.append(movie_doc)
-        except Exception as e:
-            error_count+=1
-            config.logger.error(e)
-    
-    logger.debug(f"loaded {len(doc_list)} docs")
-    if error_count > 0:
-            logger.warning(f"Encountered {error_count} error(s)")
-    
-    db.index(inputs=DocList[MovieDoc](doc_list))
-    logger.debug(f"Indexed Successfully")
-    return db
-
-def search_movies(db: InMemoryExactNNVectorDB[MovieDoc], query:MovieQuery, limit: int = 10) -> List[MovieDoc]:
-    query_embedding = query.vector_embedding
-    querydoc = MovieDoc(
-        record_id=-1,
-        movie_id=-1,
-        title="",
-        country="",
-        release_year=-1,
-        description="",
-        embedding=query_embedding
-    )
-
+def search_movies(movies: List[Movie], query: MovieQuery, limit: int = 10) -> List[Tuple[Movie, float]]:
     max_release_year = query.max_release_year
     min_release_year = query.min_release_year
+    query_embedding = np.array(query.vector_embedding)
 
-    results = db.search(inputs=DocList[MovieDoc]([querydoc]))    
+    filtered_movies = [
+        movie
+        for movie in movies
+        if min_release_year <= movie.release_year <= max_release_year
+    ]
 
-    filtered_results = []
+    filtered_embeddings = np.array([movie.vector_embedding for movie in filtered_movies])
 
-    for match in results[0].matches:
-        if min_release_year <= match.release_year <= max_release_year:
-            filtered_results.append(match)
-        if len(filtered_results) >= limit:
-            return filtered_results
+    cosine_scores = cosine_distances(query_embedding.reshape(1, -1), filtered_embeddings)
 
-    return filtered_results
+    sorted_movies = sorted(zip(filtered_movies, cosine_scores[0]), key=lambda x: x[1], reverse=False)
+
+    top_movies = [(movie, distance) for movie, distance in sorted_movies[:limit]]
+
+    return top_movies
