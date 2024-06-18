@@ -1,5 +1,5 @@
 venv
-workspace_path
+workspace
 **/__pycache__
 .vscode
 datasets/*.csv
