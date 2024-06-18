@@ -8,7 +8,6 @@ class TestLoadDataset(unittest.TestCase):
     def setUp(self):
         self.config = Config(
             logger=Mock(),
-            workspace_path="",
         )  
     
     # See https://stackoverflow.com/questions/1289894/how-do-i-mock-an-open-used-in-a-with-statement-using-the-mock-framework-in-pyth 

@@ -6,6 +6,5 @@ if __name__ == "__main__":
     logger = setup_logging(False)
     config = Config(
         logger=logger,
-        workspace_path="workspace",
     )
     process_cli(config)
