@@ -2,5 +2,5 @@ venv
 workspace_path
 **/__pycache__
 .vscode
-datasets
-queries
+datasets/*.csv
+queries/*.csv
