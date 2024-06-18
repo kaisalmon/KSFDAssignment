@@ -39,5 +39,5 @@ def load_dataset(path: str, conf: Config) -> List[Movie]:
                 logger.warning(e)
     conf.logger.debug(f"loaded {len(result)} records")
     if error_count > 0:
-        conf.logger.warning(f"Encountered {error_count} error(s)")
+        conf.logger.warning(f"encountered {error_count} error(s)")
     return result

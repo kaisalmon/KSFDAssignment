@@ -18,7 +18,9 @@ def search_movies(movies: List[Movie], query: MovieQuery, limit: int = 10) -> Li
     ]
 
     filtered_embeddings = np.array([movie.vector_embedding for movie in filtered_movies])
-
+    if len(filtered_embeddings) == 0:
+        return []
+    
     cosine_scores = cosine_distances(query_embedding.reshape(1, -1), filtered_embeddings)
 
     sorted_movies = sorted(zip(filtered_movies, cosine_scores[0]), key=lambda x: x[1], reverse=False)

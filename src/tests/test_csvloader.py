@@ -8,9 +8,7 @@ class TestLoadDataset(unittest.TestCase):
     def setUp(self):
         self.config = Config(
             logger=Mock(),
-            dataset_path="",
             workspace_path="",
-            query_path="",
         )  
     
     # See https://stackoverflow.com/questions/1289894/how-do-i-mock-an-open-used-in-a-with-statement-using-the-mock-framework-in-pyth 
@@ -49,7 +47,7 @@ class TestLoadDataset(unittest.TestCase):
         self.assertIsInstance(result[0], Movie)
         self.config.logger.debug.assert_called_once_with("loaded 1 records")
         self.config.logger.warning.call_count == 2 
-        self.config.logger.warning.assert_called_with("Encountered 1 error(s)")
+        self.config.logger.warning.assert_called_with("encountered 1 error(s)")
 
 if __name__ == '__main__':
     unittest.main()

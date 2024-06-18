@@ -33,8 +33,10 @@ class TestSearch2DMovies(unittest.TestCase):
         (movie, _) = results[0]
         assert movie.title == "North"
 
-   
-   
+    def test_search_movies_no_results(self):
+        query = MovieQuery(min_release_year=100, max_release_year=100, query="No results", vector_embedding=[0,0])
+        results = search_movies(self.movies, query, limit=4)
+        assert len(results)==0, "No results returned"
 
 if __name__ == '__main__':
     unittest.main()

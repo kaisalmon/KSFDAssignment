@@ -7,5 +7,4 @@ import logging
 class Config:
     logger: logging.Logger
     workspace_path: str
-    dataset_path: str
-    query_path: str
+    
