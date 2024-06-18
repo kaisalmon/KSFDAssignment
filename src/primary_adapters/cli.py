@@ -1,7 +1,6 @@
 import argparse
 
 from tabulate import tabulate
-
 from logic.logging import setup_logging
 from logic.search import SearchParams, perform_search
 from main_types import Config

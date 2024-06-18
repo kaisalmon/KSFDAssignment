@@ -1,8 +1,5 @@
 from sklearn.metrics.pairwise import cosine_distances
-from dataclasses import dataclass
-from main_types import Config
 import numpy as np
-from docarray.typing import NdArray
 from typing import List, Tuple
 from logic.movie import Movie, MovieQuery
 
